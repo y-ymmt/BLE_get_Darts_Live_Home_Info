@@ -1,0 +1,13 @@
+# 既存依存関係を継承
+-r requirements.txt
+
+# Webフレームワーク
+flask>=3.0.0
+flask-socketio>=5.3.0
+flask-cors>=4.0.0
+
+# WebSocket
+python-socketio>=5.10.0
+
+# 非同期サポート
+eventlet>=0.33.0
