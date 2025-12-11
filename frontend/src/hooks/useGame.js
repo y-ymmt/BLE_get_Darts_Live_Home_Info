@@ -90,7 +90,8 @@ export function useGame(gameId) {
       setLastProcessedThrowTimestamp(latestThrow.timestamp)
       processThrow(latestThrow).catch(console.error)
     }
-  }, [latestThrow, gameId, gameState?.state, processThrow, lastProcessedThrowTimestamp])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latestThrow, gameId])
 
   // 初回読み込み
   useEffect(() => {
