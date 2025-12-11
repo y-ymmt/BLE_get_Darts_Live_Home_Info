@@ -79,13 +79,18 @@ export function useGame(gameId) {
 
   // リアルタイム投擲を自動処理（ゲームがアクティブな場合）
   useEffect(() => {
+    // ゲームが投擲を受け付けられる状態かチェック
+    // waiting: ゲーム開始前（最初の投擲でplayingに遷移）
+    // playing: ゲーム進行中
+    const canAcceptThrows = gameState?.state === 'waiting' || gameState?.state === 'playing'
+
     // 同じ投擲を重複処理しないようにチェック
-    if (gameId && gameState?.state === 'playing' && latestThrow &&
+    if (gameId && canAcceptThrows && latestThrow &&
         latestThrow.timestamp !== lastProcessedThrowTimestamp) {
       setLastProcessedThrowTimestamp(latestThrow.timestamp)
       processThrow(latestThrow).catch(console.error)
     }
-  }, [latestThrow, gameId, processThrow])
+  }, [latestThrow, gameId, gameState?.state, processThrow, lastProcessedThrowTimestamp])
 
   // 初回読み込み
   useEffect(() => {
