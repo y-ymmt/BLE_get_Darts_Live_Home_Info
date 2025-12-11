@@ -2,17 +2,20 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../services/api'
 import useSocket from '../hooks/useSocket'
+import DateRangeFilter from '../components/DateRangeFilter'
 
 export function ThrowsList() {
   const [throws, setThrows] = useState([])
   const [loading, setLoading] = useState(true)
+  const [dateFilter, setDateFilter] = useState({ start_time: null, end_time: null })
   const { latestThrow } = useSocket()
 
   useEffect(() => {
     fetchThrows()
-  }, [])
+  }, [dateFilter])
 
   useEffect(() => {
+    // リアルタイム投擲は期間フィルターに関わらず追加（最新データなので）
     if (latestThrow) {
       setThrows(prev => [latestThrow, ...prev].slice(0, 50))
     }
@@ -21,13 +24,21 @@ export function ThrowsList() {
   async function fetchThrows() {
     try {
       setLoading(true)
-      const response = await api.getThrows({ limit: 50 })
+      const params = { limit: 50 }
+      if (dateFilter.start_time) params.start_time = dateFilter.start_time
+      if (dateFilter.end_time) params.end_time = dateFilter.end_time
+
+      const response = await api.getThrows(params)
       setThrows(response.throws || [])
     } catch (error) {
       console.error('Failed to fetch throws:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleFilterChange(filter) {
+    setDateFilter(filter)
   }
 
   if (loading) {
@@ -52,8 +63,13 @@ export function ThrowsList() {
           Throws
         </h1>
         <p style={{ color: 'var(--color-text-secondary)' }}>
-          最新 {throws.length} 件の投擲記録
+          {throws.length} 件の投擲記録
         </p>
+      </div>
+
+      {/* Date Range Filter */}
+      <div style={{ marginBottom: 'var(--space-xl)' }}>
+        <DateRangeFilter onFilterChange={handleFilterChange} />
       </div>
 
       {/* Throws Grid */}

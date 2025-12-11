@@ -1,10 +1,21 @@
 import { Link, useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import useSocket from '../hooks/useSocket'
 
 export function Layout({ children }) {
   const location = useLocation()
-  const { isConnected, bleStatus } = useSocket()
+  const { isConnected, bleStatus, latestThrow } = useSocket()
+  const [showThrowNotification, setShowThrowNotification] = useState(false)
+
+  // 投擲検出時に通知を表示
+  useEffect(() => {
+    if (latestThrow) {
+      setShowThrowNotification(true)
+      const timer = setTimeout(() => setShowThrowNotification(false), 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [latestThrow])
 
   const navItems = [
     { path: '/', label: 'Throws' },
@@ -133,6 +144,51 @@ export function Layout({ children }) {
           </div>
         </div>
       </header>
+
+      {/* Throw Notification */}
+      <AnimatePresence>
+        {showThrowNotification && latestThrow && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            style={{
+              position: 'fixed',
+              top: '80px',
+              right: 'var(--space-xl)',
+              backgroundColor: 'var(--color-surface)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-md)',
+              padding: 'var(--space-md) var(--space-lg)',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-md)'
+            }}
+          >
+            <div style={{
+              fontSize: '2rem',
+              fontWeight: 700,
+              color: latestThrow.score >= 20 ? 'var(--color-green)' : 'var(--color-text-primary)'
+            }}>
+              {latestThrow.score}
+            </div>
+            <div style={{
+              borderLeft: '1px solid var(--color-border)',
+              paddingLeft: 'var(--space-md)'
+            }}>
+              <div style={{
+                fontSize: '0.875rem',
+                fontFamily: 'var(--font-mono)',
+                color: 'var(--color-text-secondary)'
+              }}>
+                {latestThrow.segment_name}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
       <main style={{

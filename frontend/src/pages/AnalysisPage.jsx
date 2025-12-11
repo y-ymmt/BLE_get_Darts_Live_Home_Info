@@ -1,24 +1,40 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../services/api'
+import useSocket from '../hooks/useSocket'
+import DateRangeFilter from '../components/DateRangeFilter'
 
 export function AnalysisPage() {
   const [stats, setStats] = useState(null)
   const [segmentDist, setSegmentDist] = useState([])
   const [scoreDist, setScoreDist] = useState([])
   const [loading, setLoading] = useState(true)
+  const [dateFilter, setDateFilter] = useState({ start_time: null, end_time: null })
+  const { latestThrow } = useSocket()
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [dateFilter])
+
+  // 新しい投擲があったら統計を更新（全期間フィルターの場合のみ）
+  useEffect(() => {
+    if (latestThrow && !dateFilter.start_time && !dateFilter.end_time) {
+      fetchData()
+    }
+  }, [latestThrow])
 
   async function fetchData() {
     try {
       setLoading(true)
+
+      const params = {}
+      if (dateFilter.start_time) params.start_time = dateFilter.start_time
+      if (dateFilter.end_time) params.end_time = dateFilter.end_time
+
       const [statsRes, segmentRes, scoreRes] = await Promise.all([
-        api.getStatistics(),
-        api.getSegmentDistribution({ top_n: 10 }),
-        api.getScoreDistribution()
+        api.getStatistics(params),
+        api.getSegmentDistribution({ ...params, top_n: 10 }),
+        api.getScoreDistribution(params)
       ])
 
       setStats(statsRes.statistics)
@@ -29,6 +45,10 @@ export function AnalysisPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleFilterChange(filter) {
+    setDateFilter(filter)
   }
 
   if (loading) {
@@ -66,6 +86,11 @@ export function AnalysisPage() {
         <p style={{ color: 'var(--color-text-secondary)' }}>
           投擲データの統計分析
         </p>
+      </div>
+
+      {/* Date Range Filter */}
+      <div style={{ marginBottom: 'var(--space-xl)' }}>
+        <DateRangeFilter onFilterChange={handleFilterChange} />
       </div>
 
       {/* Stats Grid */}
