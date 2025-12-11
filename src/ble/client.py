@@ -61,6 +61,8 @@ class DartsLiveClient:
             data: 受信データ
         """
         try:
+            logger.debug(f"通知ハンドラー開始: sender={sender}, data_len={len(data)}")
+
             if len(data) != DATA_PACKET_SIZE:
                 logger.warning(
                     f"予期しないデータサイズ: {len(data)} bytes (期待値: {DATA_PACKET_SIZE} bytes)"
@@ -72,10 +74,12 @@ class DartsLiveClient:
             logger.debug(f"受信データ: {data.hex()} -> セグメントコード: 0x{segment_code:02x}")
 
             if self._data_callback:
+                logger.debug("コールバック関数を呼び出し中...")
                 self._data_callback(segment_code)
+                logger.debug("コールバック関数完了")
 
         except Exception as e:
-            logger.error(f"通知ハンドラーでエラーが発生: {e}")
+            logger.error(f"通知ハンドラーでエラーが発生: {e}", exc_info=True)
 
     def set_data_callback(self, callback: Callable[[int], None]) -> None:
         """

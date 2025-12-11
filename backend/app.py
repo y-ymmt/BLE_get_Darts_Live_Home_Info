@@ -9,9 +9,11 @@ import os
 from backend.ble_manager import BLEManager
 from src.core.logger import setup_logger
 
-# ロガー設定
-setup_logger('INFO')
+# ロガー設定（環境変数LOG_LEVELで制御可能、デフォルトはINFO）
+log_level = os.environ.get('LOG_LEVEL', 'INFO')
+setup_logger(log_level)
 logger = logging.getLogger(__name__)
+logger.info(f"ログレベル: {log_level}")
 
 # Flaskアプリ作成
 app = Flask(__name__, static_folder='../frontend/dist')

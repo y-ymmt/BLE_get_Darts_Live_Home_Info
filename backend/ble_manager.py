@@ -154,8 +154,11 @@ class BLEManager:
                 # 接続監視ループ
                 logger.info("接続を監視中...")
                 while self.is_running:
-                    # 接続状態をチェック
-                    if not self.client.is_connected:
+                    # 接続状態をチェック（詳細ログ付き）
+                    is_connected = self.client.is_connected
+                    logger.debug(f"接続状態チェック: is_connected={is_connected}, is_running={self.is_running}")
+
+                    if not is_connected:
                         logger.warning("BLE接続が切断されました")
                         self.event_bus.publish('ble_error', {
                             'error': 'connection_lost',
@@ -210,6 +213,8 @@ class BLEManager:
             segment_code: BLEデバイスから受信したセグメントコード
         """
         try:
+            logger.debug(f"_on_throw_data開始: segment_code=0x{segment_code:02x}")
+
             # キューに入れるだけ（BLE通知ハンドラーをブロックしない）
             self._processing_queue.put_nowait({
                 'segment_code': segment_code,
@@ -217,11 +222,11 @@ class BLEManager:
                 'device_address': self.device_address,
                 'device_name': self.device_name
             })
-            logger.debug(f"投擲データをキューに追加: 0x{segment_code:02x}")
+            logger.debug(f"投擲データをキューに追加完了: 0x{segment_code:02x}")
         except queue.Full:
             logger.error("処理キューが満杯です。投擲データを破棄しました")
         except Exception as e:
-            logger.error(f"投擲データのキューイング中にエラー: {e}")
+            logger.error(f"投擲データのキューイング中にエラー: {e}", exc_info=True)
 
     def _process_throws_worker(self) -> None:
         """
