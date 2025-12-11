@@ -31,40 +31,32 @@ class SegmentMapper:
         """
         mapping = {}
 
-        # ダーツボードの数字配置 (時計回り)
-        board_numbers = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5]
+        # シングル（内側）1-20 - 0x01から0x14 (実機確認済み)
+        for num in range(1, 21):
+            code = 0x00 + num
+            mapping[code] = (num, 1, f"シングル{num}(内)")
 
-        # トリプルエリア (中間) - 実機確認済み
-        # トリプル1-19 (時計回り順) - 0x14から開始
-        triple_numbers_1_19 = [1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5]
-        code = 0x14
-        for num in triple_numbers_1_19:
-            mapping[code] = (num, 3, f"トリプル{num}")
-            code += 1
+        # シングル（外側）1-20 - 0x15から0x28 (実機確認済み)
+        for num in range(1, 21):
+            code = 0x14 + num
+            mapping[code] = (num, 1, f"シングル{num}(外)")
 
-        # トリプル20 - 0x27
-        mapping[0x27] = (20, 3, "トリプル20")
-
-        # ダブルエリア (外側) - 0x28から開始 (実機確認済み)
-        code = 0x28
-        for num in board_numbers:
+        # ダブル1-20 - 0x29から0x3c (実機確認済み)
+        for num in range(1, 21):
+            code = 0x28 + num
             mapping[code] = (num, 2, f"ダブル{num}")
-            code += 1
 
-        # シングルエリア (内側) - 実機確認済み
-        # シングル1-19 (時計回り順) - 0x3eから開始
-        single_numbers_1_19 = [1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5]
-        code = 0x3e
-        for num in single_numbers_1_19:
-            mapping[code] = (num, 1, f"シングル{num}")
-            code += 1
+        # トリプル1-20 - 0x3dから0x50 (実機確認済み)
+        for num in range(1, 21):
+            code = 0x3c + num
+            mapping[code] = (num, 3, f"トリプル{num}")
 
-        # シングル20 - 0x54
-        mapping[0x54] = (20, 1, "シングル20")
-
-        # ブル - 0x51と0x52 (実機確認済み)
+        # ブル (実機確認済み)
         mapping[0x51] = (25, 1, "アウターブル")
         mapping[0x52] = (25, 2, "インナーブル")
+
+        # プレイヤー交代ボタン（シングル20(外)として扱う）
+        mapping[0x54] = (20, 1, "シングル20(外)")
 
         return mapping
 
