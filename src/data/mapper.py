@@ -24,8 +24,7 @@ class SegmentMapper:
         """
         デフォルトのマッピングテーブルを作成
 
-        注: これは推定値です。実機で各セグメントのコードを確認して
-        このマッピングを調整する必要があります。
+        注: このマッピングは実機（DARTSLIVE HOME）でテストして確認済みです。
 
         Returns:
             セグメントコード -> (基本数字, 倍率, セグメント名) の辞書
@@ -35,29 +34,32 @@ class SegmentMapper:
         # ダーツボードの数字配置 (時計回り)
         board_numbers = [20, 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5]
 
-        # 仮のマッピング (実機確認が必要)
-        # セグメントコード 0x00 から順に割り当て
-        code = 0x00
-
-        # シングルエリア (内側)
-        for num in board_numbers:
-            mapping[code] = (num, 1, f"シングル{num}")
-            code += 1
-
-        # ダブルエリア (外側)
+        # ダブルエリア (外側) - 0x14から開始 (実機確認済み)
+        code = 0x14
         for num in board_numbers:
             mapping[code] = (num, 2, f"ダブル{num}")
             code += 1
 
-        # トリプルエリア (中間)
+        # トリプルエリア (中間) - 0x28から開始 (実機確認済み)
+        code = 0x28
         for num in board_numbers:
             mapping[code] = (num, 3, f"トリプル{num}")
             code += 1
 
-        # ブル
-        mapping[code] = (25, 1, "アウターブル")
-        code += 1
-        mapping[code] = (25, 2, "インナーブル")
+        # ブル - 0x3cと0x3d (実機確認済み)
+        mapping[0x3c] = (25, 1, "アウターブル")
+        mapping[0x3d] = (25, 2, "インナーブル")
+
+        # シングルエリア (内側) - 0x54が20、0x3e-0x51が1-19 (実機確認済み)
+        # シングル20
+        mapping[0x54] = (20, 1, "シングル20")
+
+        # シングル1-19 (時計回り順: 1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5)
+        single_numbers = [1, 18, 4, 13, 6, 10, 15, 2, 17, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5]
+        code = 0x3e
+        for num in single_numbers:
+            mapping[code] = (num, 1, f"シングル{num}")
+            code += 1
 
         return mapping
 
