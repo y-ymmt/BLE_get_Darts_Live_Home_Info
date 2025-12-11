@@ -132,8 +132,9 @@ def start_web_server(host='0.0.0.0', port=5000, debug=False):
 
     # Webサーバー起動
     logger.info(f"Webサーバーを起動: http://{host}:{port}")
+    # BLE接続との競合を避けるため、デバッグモードでもリローダーは無効化
     # 本番環境ではallow_unsafe_werkzeugを無効化（debugフラグに連動）
-    socketio.run(app, host=host, port=port, debug=debug, allow_unsafe_werkzeug=debug)
+    socketio.run(app, host=host, port=port, debug=debug, use_reloader=False, allow_unsafe_werkzeug=debug)
 
 
 if __name__ == '__main__':
