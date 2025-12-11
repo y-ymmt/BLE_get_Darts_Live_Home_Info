@@ -68,7 +68,7 @@ class DartLiveApp:
             throw_id = self.database.save_throw(throw)
 
             # コンソールに表示
-            logger.info(f"🎯 投擲検出: {segment_name} ({score}点) [ID: {throw_id}]")
+            logger.info(f"🎯 投擲検出: [0x{segment_code:02x}] {segment_name} ({score}点) [ID: {throw_id}]")
 
         except Exception as e:
             logger.error(f"投擲データの処理中にエラーが発生: {e}")
