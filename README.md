@@ -433,7 +433,7 @@ npm install
 
 ## 参考資料
 
-- [DARTSLIVE HOME BLE通信に関する記事](https://nonsenseofname.hatenadiary.com/entry/2021/12/01/014347)
+- [サルでもわかるBLE入門](https://www.musen-connect.co.jp/blog/course/trial-production/ble-beginner-1/)
 - [bleak ドキュメント](https://bleak.readthedocs.io/)
 
 ## 貢献
