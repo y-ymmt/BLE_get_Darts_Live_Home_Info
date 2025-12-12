@@ -6,10 +6,16 @@ DARTSLIVE HOMEからBluetooth Low Energy (BLE) 経由でダーツの投擲デー
 
 - 🎯 **リアルタイムデータ取得**: BLE GATT通信でダーツの投擲データをリアルタイムに取得
 - 💾 **データ保存**: SQLiteデータベースに投擲データを自動保存
-- 📊 **データ分析**: 統計情報、セグメント分布、精度分析などの機能
+- 📊 **データ分析**: 統計情報、セグメント分布、精度分析、日付フィルター機能
 - 🌐 **Webアプリケーション**: Flask + React によるリアルタイムダッシュボード
+  - WebSocket (Socket.IO) によるリアルタイム更新
+  - Framer Motionによる滑らかなアニメーション
 - 🔄 **自動再接続**: 接続監視と自動再接続で安定した動作
 - 🎮 **ゲームモード**: ゼロワン(01)ゲームの実装
+  - 301/501/701/1001 から選択可能
+  - ダブルアウト、マスターアウト、ストレートアウト対応
+  - 複数プレイヤー対応
+  - プレイヤー交代ボタン検出
 - ⚡ **非同期処理**: キューベースの非同期データ処理で安定したBLE接続
 - ✅ **テストカバレッジ**: 主要機能の単体テスト実装済み
 
@@ -135,10 +141,21 @@ BLE_get_Darts_Live_Home_Info/
 ├── frontend/                   # Webアプリケーション（フロントエンド）
 │   ├── src/
 │   │   ├── components/         # Reactコンポーネント
+│   │   │   ├── Layout.jsx      # 共通レイアウト
+│   │   │   └── DateRangeFilter.jsx # 日付フィルター
 │   │   ├── pages/              # ページコンポーネント
+│   │   │   ├── ThrowsList.jsx  # 投擲一覧
+│   │   │   ├── AnalysisPage.jsx # 分析画面
+│   │   │   └── ZeroOnePage.jsx # ゼロワンゲーム
 │   │   ├── hooks/              # カスタムフック
+│   │   │   ├── useSocket.js    # WebSocket接続
+│   │   │   └── useGame.js      # ゲーム状態管理
 │   │   ├── services/           # API/WebSocketクライアント
-│   │   └── App.jsx             # ルートコンポーネント
+│   │   │   ├── api.js          # REST APIクライアント
+│   │   │   └── socket.js       # Socket.IOクライアント
+│   │   ├── App.jsx             # ルートコンポーネント
+│   │   ├── main.jsx            # エントリーポイント
+│   │   └── index.css           # グローバルスタイル
 │   ├── package.json
 │   └── vite.config.js
 ├── tests/                      # テストコード
@@ -412,20 +429,36 @@ npm install
 
 このプロジェクトは、将来的に以下の機能を追加することを想定して設計されています:
 
-- 🌐 **Webアプリケーション化**: FastAPI + React でWebダッシュボード
 - 📱 **複数デバイス対応**: 複数のDARTSLIVE HOMEデバイスの同時接続
 - 📈 **高度な統計分析**: 時系列分析、上達度トラッキング
-- 🎮 **ゲームモード**: 01ゲーム、クリケットなどのゲームモード実装
-- 👥 **マルチプレイヤー**: 複数プレイヤーの記録・比較
+- 🎮 **追加ゲームモード**: クリケット、カウントアップなど
+- 👥 **マルチプレイヤー強化**: 複数プレイヤーの記録・比較、ランキング機能
 - ☁️ **クラウド同期**: データのクラウドバックアップ・同期
 
 ## 技術スタック
 
+### コア
 - **BLE通信**: bleak
 - **データベース**: SQLite
 - **データ分析**: pandas
-- **テスト**: pytest
 - **非同期処理**: asyncio
+
+### バックエンド (Web)
+- **Webフレームワーク**: Flask
+- **WebSocket**: Flask-SocketIO, python-socketio
+- **CORS**: Flask-CORS
+- **非同期サーバー**: eventlet
+
+### フロントエンド
+- **UIライブラリ**: React 18
+- **ビルドツール**: Vite
+- **ルーティング**: React Router
+- **WebSocket**: Socket.IO Client
+- **アニメーション**: Framer Motion
+
+### 開発ツール
+- **テスト**: pytest, pytest-asyncio, pytest-cov
+- **モック**: pytest-mock
 
 ## ライセンス
 
